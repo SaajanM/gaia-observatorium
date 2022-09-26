@@ -5,31 +5,33 @@ using System.IO.MemoryMappedFiles;
 using System.Threading;
 using UnityEngine;
 
-public class SimThread : MonoBehaviour
+public class SimController : MonoBehaviour
 {
     public bool initThread = false;
     private Thread _simThread = null;
  
     static string _worldPath = null;
-    
+
+    public static MemoryMappedViewAccessor accessor = null;
     // Start is called before the first frame update
     void Start()
     {
-        _worldPath = Path.Join(Application.persistentDataPath, "level.dat");
+        _worldPath = Path.GetFullPath("~/Documents/games/gaia/worlds/test1.gaia");
         if (!initThread) return;
-        _simThread = new Thread(Simulate);
-        _simThread.Start();
+        StartController();
     }
 
-    private static void Simulate()
+    private static void StartController()
     {
         if (!File.Exists(_worldPath))
         {
-            File.Create(_worldPath).Close();
+            throw new FileNotFoundException();
         }
         
-        MemoryMappedFile level = MemoryMappedFile.CreateFromFile(_worldPath,FileMode.Open,"mem_level",6_000_000_000,MemoryMappedFileAccess.ReadWrite);
-        long currOffset = 0;
-        
+        MemoryMappedFile world = MemoryMappedFile.CreateFromFile(_worldPath,FileMode.Open,"mem_level",10L*1024L*1024L*1024L,MemoryMappedFileAccess.Read);
+        accessor = world.CreateViewAccessor();
+
+
     }
+    
 }
